@@ -1,0 +1,8 @@
+# Ignorar a pasta de vídeos
+videos/
+
+# Ignorar a pasta de modelos
+models/
+
+# Ignorar arquivos de cache do Python
+src/__pycache__/
