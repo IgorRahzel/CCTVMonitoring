@@ -1,12 +1,14 @@
 from area import area
 from person import person
+from heatMap import heatMap
 import cv2
 
 class videoAnalyzer:
-    def __init__(self,areasList):
+    def __init__(self,areasList,height,width):
         self.id = 0
         self.areasDict = self.buildAreasDict(areasList)
         self.people = {}
+        self.heatmap = heatMap(height,width)
 
     def buildAreasDict(self,areasList):
         areasDict = {}
@@ -76,6 +78,16 @@ class videoAnalyzer:
                 self.areasDict[_person.currentArea].IdsRecordInArea.add(id)
                 self.areasDict[_person.currentArea].currentNumberOfPeople += 1
                 self.areasDict[_person.currentArea].totalNumberOfPeople = len(self.areasDict[_person.currentArea].IdsRecordInArea)
+
+
+    
+    def buildHeatMap(self,frame):
+        for _person in self.people.values():
+            self.heatmap.updateHeatMap(_person.BBox)
+        
+        overlayedHeatMap = self.heatmap.overlayHeatMap(frame)
+        return overlayedHeatMap
+
 
     
 
