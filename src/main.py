@@ -14,9 +14,12 @@ model = YOLO(model_path)
 # Load video
 cap = cv2.VideoCapture(video_path)
 
+#start_frame = 500
+#cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame) 
+
 # Define areas
-corridor_vertices = np.array([[360,0],[540,326],[580,326],[580,0]],np.int32)
-exit_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)
+corridor_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)
+exit_vertices = np.array([[360,0],[540,326],[580,326],[580,0]],np.int32)
 register1_vertices = np.array([[269,290],[515,290],[520,326],[269,326]],np.int32)
 register2_vertices = np.array([[270,154],[435,154],[504,282],[270,282]],np.int32)
 register3_vertices = np.array([[270,80],[400,80],[427,143],[270,143]],np.int32)

@@ -20,11 +20,10 @@ class videoAnalyzer:
     # Return tuple of BBOx and centroids
     def getData(self,results):
         data = []
-        print(results[0].boxes)
         for box in results[0].boxes:
             cls = int(box.cls[0])
             if cls == 0:
-                x1, y1, x2, y2 = map(int, box.xyxy)
+                x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
                 data.append(((x1, y1, x2, y2), ((x1 + x2) // 2, (y1 + y2) // 2)))
         return data
     
@@ -86,26 +85,48 @@ class videoAnalyzer:
         for _person in self.people.values():
             x1,y1,x2,y2 = _person.BBox
             cv2.rectangle(frame, (x1, y1), (x2, y2), _person.BBoxColor, 2)
-            cv2.putText(frame, f'Person {_person.id}', (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, _person.BBoxColor, 2)
+            cv2.putText(frame, f'id:{_person.id}', (x1, y1-3),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
         return frame
     
 
-    def drawAreas(self,frame):
+    def drawAreas(self, frame):
         for _area in self.areasDict.values():
+            # Desenha o polígono da área
             cv2.polylines(frame, [np.array(_area.vertices)], True, _area.color, 2)
-            cv2.putText(frame, f'{_area.name}: {_area.totalNumberOfPeople}', (_area.vertices[0][0], _area.vertices[0][1] - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, _area.color, 2)
-        return frame
+            
+            # Obtém os vértices do polígono
+            vertices = np.array(_area.vertices)
+            
+            # Encontra o ponto superior direito (menor y e maior x)
+            top_right_point = vertices[np.argmin(vertices[:, 1])]  # Ponto com o menor y
+            # Se houver múltiplos pontos com o mesmo y, escolha o que tem o maior x
+            top_right_candidates = vertices[vertices[:, 1] == top_right_point[1]]
+            top_right_point = top_right_candidates[np.argmin(top_right_candidates[:, 0])]
+            
+            # Define a posição do texto: abaixo e à direita do ponto superior direito
+            text_x = top_right_point[0] + 5  # Mesmo x do ponto superior direito
+            text_y = top_right_point[1] + 10  # Ajuste para colocar o texto abaixo do ponto
 
+            # Escreve o nome da área e a quantidade de pessoas
+            text = f'{_area.name}'
+            cv2.putText(frame, text, (text_x, text_y),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+        
+        return frame
 
     
     def buildHeatMap(self,frame):
         for _person in self.people.values():
-            self.heatmap.updateHeatMap(_person.BBox)
+            self.heatmap.updateDetectionMatrix(_person.BBox)
         
         overlayedHeatMap = self.heatmap.overlayHeatMap(frame)
         return overlayedHeatMap
+    
+    def clearAreaCurrentInfo(self):
+        for _area in self.areasDict.values():
+            _area.currentNumberOfPeople = 0
+            _area.currentIdsInArea = []
     
 
     def processVideo(self,results,frameNumber,frame):
@@ -113,9 +134,22 @@ class videoAnalyzer:
         self.updatePeopleDict(results,frameNumber)
         self.updatePersonArea()
         self.updateAreas()
+        frame = self.buildHeatMap(frame)
         frame = self.drawAreas(frame)
         frame = self.drawBoundingBoxes(frame)
-        frame = self.buildHeatMap(frame)
+        
+        '''
+        # print number of people in each area:
+        for _area in self.areasDict.values():
+            print(f'{_area.name}: {_area.currentNumberOfPeople}')
+
+        # plot line following each person`s centroid
+        for _person in self.people.values():
+            for i in range(len(_person.positionHistory) - 1):
+                cv2.line(frame, _person.positionHistory[i], _person.positionHistory[i + 1], _person.BBoxColor, 2)
+        '''
+        self.clearAreaCurrentInfo()
+
         return frame
 
     
