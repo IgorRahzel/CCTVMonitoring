@@ -6,10 +6,10 @@ import numpy as np
 
 # Paths
 video_path = 'videos/SuperMarket.mp4'
-model_path = 'models/yolov8s.pt'
+model_path = 'models/yolov8x.pt'
 
 # Load model
-model = YOLO('yolov8x.pt')
+model = YOLO(model_path)
 
 # Load video
 cap = cv2.VideoCapture(video_path)
