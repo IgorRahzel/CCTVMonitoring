@@ -1,10 +1,43 @@
 from ultralytics import YOLO
+from area import area
+from videoAnalyzer import videoAnalyzer
 import cv2
+import numpy as np
 
+# Paths
 video_path = 'videos/SuperMarket.mp4'
-#model_path = 'models/yolov8s.pt'
-model = YOLO('yolov8l.pt')
+model_path = 'models/yolov8s.pt'
+
+# Load model
+model = YOLO('yolov8x.pt')
+
+# Load video
 cap = cv2.VideoCapture(video_path)
+
+# Define areas
+corridor_vertices = np.array([[360,0],[540,326],[580,326],[580,0]],np.int32)
+exit_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)
+register1_vertices = np.array([[269,290],[515,290],[520,326],[269,326]],np.int32)
+register2_vertices = np.array([[270,154],[435,154],[504,282],[270,282]],np.int32)
+register3_vertices = np.array([[270,80],[400,80],[427,143],[270,143]],np.int32)
+
+corridor = area('corridor',color=(0,255,255),vertices=corridor_vertices)
+exit = area('exit',color=(255,0,255),vertices=exit_vertices)
+register1 = area('register1',color=(255,255,0),vertices=register1_vertices)
+register2 = area('register2',color=(0,255,0),vertices=register2_vertices)
+register3 = area('register3',color=(0,0,255),vertices=register3_vertices)
+
+areasList = [corridor,exit,register1,register2,register3]
+
+# Video properties
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+
+# Initialize video analyzer
+video_analyzer = videoAnalyzer(areasList,height,width)
+
+# frame counter
+frameNumber = 0
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -13,27 +46,18 @@ while cap.isOpened():
 
     results = model(frame)
 
-    # Criar uma cópia do frame original para desenhar apenas as detecções de pessoas
-    frame_plot = frame.copy()
+    # process the video
+    processed_frame = video_analyzer.processVideo(results,frameNumber,frame)
 
-    for result in results:
-        for box in result.boxes:
-            cls = int(box.cls[0])  # Obtém a classe da detecção
-            if cls == 0:  # Classe 0 corresponde a 'pessoa' no COCO dataset
-                x1, y1, x2, y2 = map(int, box.xyxy[0])  # Coordenadas da bounding box
-                conf = box.conf[0]  # Confiança da detecção
-                label = f'Pessoa {conf:.2f}'
-                
-                # Desenha a bounding box no frame
-                cv2.rectangle(frame_plot, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame_plot, label, (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-    cv2.imshow('frame', frame_plot)
+    # Display the resulting frame
+    cv2.imshow('frame', processed_frame)
    
     # close if q, esc or close window button is pressed
     if cv2.waitKey(1) & 0xFF in [ord('q'), 27]:
         break
+    
+    # Update the frame number
+    frameNumber += 1
 
 cap.release()
 cv2.destroyAllWindows()

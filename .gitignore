@@ -6,3 +6,6 @@ models/
 
 # Ignorar arquivos de cache do Python
 src/__pycache__/
+
+# Ignorar venv
+venv/

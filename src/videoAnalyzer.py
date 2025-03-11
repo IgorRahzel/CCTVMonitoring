@@ -2,15 +2,16 @@ from area import area
 from person import person
 from heatMap import heatMap
 import cv2
+import numpy as np
 
 class videoAnalyzer:
     def __init__(self,areasList,height,width):
         self.id = 0
-        self.areasDict = self.buildAreasDict(areasList)
+        self.areasDict = self._buildAreasDict(areasList)
         self.people = {}
         self.heatmap = heatMap(height,width)
 
-    def buildAreasDict(self,areasList):
+    def _buildAreasDict(self,areasList):
         areasDict = {}
         for area in areasList:
             areasDict[area.name] = area
@@ -19,6 +20,7 @@ class videoAnalyzer:
     # Return tuple of BBOx and centroids
     def getData(self,results):
         data = []
+        print(results[0].boxes)
         for box in results[0].boxes:
             cls = int(box.cls[0])
             if cls == 0:
@@ -38,7 +40,7 @@ class videoAnalyzer:
         
 
 
-    def updatePeopleDict(self,results,threshold,frameNumber):
+    def updatePeopleDict(self,results,frameNumber,threshold = 20):
         # get Bbox and centroids
         data = self.getData(results)
         # Check if one of the centroides corresponds to a person in the dictionary
@@ -79,6 +81,23 @@ class videoAnalyzer:
                 self.areasDict[_person.currentArea].currentNumberOfPeople += 1
                 self.areasDict[_person.currentArea].totalNumberOfPeople = len(self.areasDict[_person.currentArea].IdsRecordInArea)
 
+    
+    def drawBoundingBoxes(self,frame):
+        for _person in self.people.values():
+            x1,y1,x2,y2 = _person.BBox
+            cv2.rectangle(frame, (x1, y1), (x2, y2), _person.BBoxColor, 2)
+            cv2.putText(frame, f'Person {_person.id}', (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, _person.BBoxColor, 2)
+        return frame
+    
+
+    def drawAreas(self,frame):
+        for _area in self.areasDict.values():
+            cv2.polylines(frame, [np.array(_area.vertices)], True, _area.color, 2)
+            cv2.putText(frame, f'{_area.name}: {_area.totalNumberOfPeople}', (_area.vertices[0][0], _area.vertices[0][1] - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, _area.color, 2)
+        return frame
+
 
     
     def buildHeatMap(self,frame):
@@ -87,7 +106,17 @@ class videoAnalyzer:
         
         overlayedHeatMap = self.heatmap.overlayHeatMap(frame)
         return overlayedHeatMap
+    
 
+    def processVideo(self,results,frameNumber,frame):
+        self.removeLostPeople(frameNumber)
+        self.updatePeopleDict(results,frameNumber)
+        self.updatePersonArea()
+        self.updateAreas()
+        frame = self.drawAreas(frame)
+        frame = self.drawBoundingBoxes(frame)
+        frame = self.buildHeatMap(frame)
+        return frame
 
     
 
