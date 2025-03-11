@@ -3,7 +3,7 @@ from area import area
 from videoAnalyzer import videoAnalyzer
 import cv2
 import numpy as np
-
+# da
 # Paths
 video_path = 'videos/SuperMarket.mp4'
 model_path = 'models/yolov8x.pt'
