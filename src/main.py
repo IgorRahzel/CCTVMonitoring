@@ -3,7 +3,7 @@ from area import area
 from videoAnalyzer import videoAnalyzer
 import cv2
 import numpy as np
-# da
+
 # Paths
 video_path = 'videos/SuperMarket.mp4'
 model_path = 'models/yolov8x.pt'
@@ -15,7 +15,17 @@ model = YOLO(model_path)
 cap = cv2.VideoCapture(video_path)
 
 #start_frame = 500
-#gcap.set(cv2.CAP_PROP_POS_FRAMES, start_frame) 
+#gcap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+
+# Set configurations to write video with inference
+fps = cap.get(cv2.CAP_PROP_FPS) 
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+output_path = 'output.mp4'
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec para MP4
+out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+
 
 # Define areas
 corridor_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)
@@ -53,7 +63,8 @@ while cap.isOpened():
     processed_frame = video_analyzer.processVideo(results,frameNumber,frame)
 
     # Display the resulting frame
-    cv2.imshow('frame', processed_frame)
+    #cv2.imshow('frame', processed_frame)
+    out.write(processed_frame)
    
     # close if q, esc or close window button is pressed
     if cv2.waitKey(1) & 0xFF in [ord('q'), 27]:
@@ -63,4 +74,5 @@ while cap.isOpened():
     frameNumber += 1
 
 cap.release()
+out.release()
 cv2.destroyAllWindows()
