@@ -15,7 +15,7 @@ model = YOLO(model_path)
 cap = cv2.VideoCapture(video_path)
 
 #start_frame = 500
-#cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame) 
+#gcap.set(cv2.CAP_PROP_POS_FRAMES, start_frame) 
 
 # Define areas
 corridor_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)

@@ -1,0 +1,10 @@
+Pessoa ID: 8
+  - Último frame detectado: 33
+  - Área atual: corridor
+  - Áreas visitadas: ['corridor']
+  - Tempo na área 'corridor': 15 frames
+  - Tempo na área 'exit': 0 frames
+  - Tempo na área 'register1': 0 frames
+  - Tempo na área 'register2': 0 frames
+  - Tempo na área 'register3': 0 frames
+========================================
