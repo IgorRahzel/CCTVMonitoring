@@ -63,8 +63,8 @@ while cap.isOpened():
     processed_frame = video_analyzer.processVideo(results,frameNumber,frame)
 
     # Display the resulting frame
-    #cv2.imshow('frame', processed_frame)
-    out.write(processed_frame)
+    cv2.imshow('frame', processed_frame)
+    #out.write(processed_frame)
    
     # close if q, esc or close window button is pressed
     if cv2.waitKey(1) & 0xFF in [ord('q'), 27]:

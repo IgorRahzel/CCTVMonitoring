@@ -12,6 +12,25 @@ Este projeto tem como objeto obter dados/informações sobre uma região monitor
 
 ![Demo of the project](./readme_data/output.gif)
 
+# Como Executar
+
+1. **Instalar as dependências:**
+   Inicialmente certifique-se de que as dependências necessárias foram instaladas, isso pode ser feito executando o seguinte comando:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Navegue até a pasta do projeto:**
+     A partir da pasta do projeto execute o comando:
+     ```bash
+     python main.py
+     ```
+3. **Saída:**
+   - O vídeo contendo a inferência e o mapa de calor será exibido em uma janela
+   - Os arquivos contendo as estatísticas serão gerados na pasta *stats*
+   
+
+
 # Funcionamento do código
 Nesta seção será apresentada a ideia geral do funcionamento do código bem como o papel de cada um de seus componentes. Inicialmente trataremos das classes auxiliares como `person`,`area`,`heatMap` e `stats` então iremos tratar da classe principal, `videoAnalyzer` para conectar todos os componentes, além de realizar a geração das estatísticas e a inferência no vídeo. Por fim mostraremos o fluxo do arquivo principal `main.py`.
 
@@ -97,3 +116,5 @@ No arquivo `main.py` foi importado o modelo YOLOv8 da biblioteca *ultralytics*, 
 # Resultados
 O vídeo contendo os resultados pode ser visto no link abaixo:
 [link do vídeo](https://drive.google.com/file/d/1Xbkc8S1sPyf-ka_vGlVEXOWuZwVTyzXI/view?usp=sharing)
+
+
