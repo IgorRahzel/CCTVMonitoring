@@ -12,6 +12,19 @@ Este projeto tem como objeto obter dados/informações sobre uma região monitor
 
 ![Demo of the project](./readme_data/output.gif)
 
+# 📌 Tabela de Conteúdos
+- [Como Executar](#como-executar)
+- [Funcionamento do Código](#funcionamento-do-codigo)
+  - [Classes Auxiliares](#classes-auxiliares)
+    - [person](#1-person)
+    - [area](#2-area)
+    - [heatMap](#3-heatmap)
+    - [stats](#4-stats)
+  - [Classe videoAnalyzer](#classe-videoanalyzer)
+  - [Arquivo Principal](#arquivo-principal)
+- [Resultados](#resultados)
+
+
 # Como Executar
 
 1. **Instalar as dependências:**
