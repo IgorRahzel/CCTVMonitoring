@@ -10,6 +10,8 @@ Este projeto tem como objeto obter dados/informações sobre uma região monitor
 - Histórico das áreas acessadas por cada pessoa
 - Tempo de permanência em cada uma das áreas
 
+![Demo of the project](./readme_data/output.gif)
+
 # Funcionamento do código
 Nesta seção será apresentada a ideia geral do funcionamento do código bem como o papel de cada um de seus componentes. Inicialmente trataremos das classes auxiliares como `person`,`area`,`heatMap` e `stats` então iremos tratar da classe principal, `videoAnalyzer` para conectar todos os componentes, além de realizar a geração das estatísticas e a inferência no vídeo. Por fim mostraremos o fluxo do arquivo principal `main.py`.
 
