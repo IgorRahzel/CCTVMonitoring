@@ -93,3 +93,7 @@ Os métodos dessa classe são os seguintes:
 
 ## Arquivo principal
 No arquivo `main.py` foi importado o modelo YOLOv8 da biblioteca *ultralytics*, nele é feito a segmentação das áreas de interesse do vídeo, bem como a criação de uma lista dessas áreas. É então feito processamento dos frames do vídeos onde a YOLOv8 é utilizada para obter os dados desejados, os quais são armazendos em *results*, em seguida é feito o processamento desses dados utilizadno o método *videoProcess()* da classe `videoAnalyzer`.
+
+# Resultados
+O vídeo contendo os resultados pode ser visto no link abaixo:
+[link do vídeo](https://drive.google.com/file/d/1Xbkc8S1sPyf-ka_vGlVEXOWuZwVTyzXI/view?usp=sharing)
