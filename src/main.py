@@ -15,7 +15,7 @@ model = YOLO(model_path)
 cap = cv2.VideoCapture(video_path)
 
 #start_frame = 500
-#gcap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+#cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
 # Set configurations to write video with inference
 fps = cap.get(cv2.CAP_PROP_FPS) 
