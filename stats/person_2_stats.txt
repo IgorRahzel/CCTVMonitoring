@@ -1,0 +1,10 @@
+Pessoa ID: 2
+  - Último frame detectado: 27
+  - Área atual: exit
+  - Áreas visitadas: ['exit']
+  - Tempo na área 'corridor': 0 frames
+  - Tempo na área 'exit': 28 frames
+  - Tempo na área 'register1': 0 frames
+  - Tempo na área 'register2': 0 frames
+  - Tempo na área 'register3': 0 frames
+========================================

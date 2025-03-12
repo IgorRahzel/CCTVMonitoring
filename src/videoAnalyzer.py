@@ -1,15 +1,19 @@
 from area import area
 from person import person
 from heatMap import heatMap
+from stats import stats
 import cv2
 import numpy as np
 
 class videoAnalyzer:
-    def __init__(self,areasList,height,width):
+    def __init__(self,areasList,height,width,filename='stats'):
         self.id = 0
         self.areasDict = self._buildAreasDict(areasList)
         self.people = {}
         self.heatmap = heatMap(height,width)
+        self.statistics = stats(self.people,self.areasDict,filename)
+       
+
 
     def _buildAreasDict(self,areasList):
         areasDict = {}
@@ -59,7 +63,7 @@ class videoAnalyzer:
             # If the centroid wasn't close to any person in the dictionary, create a new person
             else:
                 self.id += 1
-                self.people[self.id] = person(self.id,frameNumber)
+                self.people[self.id] = person(self.id,frameNumber,self.areasDict)
                 self.people[self.id].updatePosition(coordinates,centroid)
 
 
@@ -69,6 +73,10 @@ class videoAnalyzer:
                 val = _area.isInside(person.positionHistory[-1])
                 if val > 0:
                     person.currentArea = _area.name
+                    person.BBoxColor = _area.color
+                    person.framesSpentinArea[_area.name] += 1
+                    if not person.visitedAreas or _area.name != person.visitedAreas[-1]:
+                        person.visitedAreas.append(_area.name)
                     break
     
 
@@ -148,6 +156,9 @@ class videoAnalyzer:
             for i in range(len(_person.positionHistory) - 1):
                 cv2.line(frame, _person.positionHistory[i], _person.positionHistory[i + 1], _person.BBoxColor, 2)
         '''
+        self.statistics.updateAreasStats()  
+        self.statistics.updatePeopleStats()
+
         self.clearAreaCurrentInfo()
 
         return frame

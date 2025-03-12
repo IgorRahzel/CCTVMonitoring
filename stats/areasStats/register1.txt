@@ -1,0 +1,6 @@
+Área: register1
+  - Total de pessoas detectadas: 0
+  - Número atual de pessoas: 0
+  - IDs que já estiveram na área: []
+  - IDs atualmente na área: []
+========================================
