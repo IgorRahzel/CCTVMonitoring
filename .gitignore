@@ -9,3 +9,7 @@ src/__pycache__/
 
 # Ignorar venv
 venv/
+
+# Ignorar stats/areaStats e  stats/peopleStats
+stats/areaStats/
+stats/peopleStats/

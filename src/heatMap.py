@@ -17,7 +17,7 @@ class heatMap:
         x1, y1, x2, y2 = bbox
         
         # Increment the detection matrix in the bounding box area
-        self.detectionMatrix[y1:y2, x1:x2] += 1
+        self.detectionMatrix[y1:y2, x1:x2] += 0.5
         
         # Update the log matrix
         self.logMatrix = np.log1p(self.detectionMatrix)
@@ -41,7 +41,7 @@ class heatMap:
         return heatmap
 
     def overlayHeatMap(self, frame):
-        self.applyDecay()  # Apply decay each iteration to smooth the transition
+        #self.applyDecay()  # Apply decay each iteration to smooth the transition
         heatmap = self.getColoredHeatMap()
         heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)  # Convert to the correct format
         output = cv2.addWeighted(frame, 0.6, heatmap, 0.4, 0)

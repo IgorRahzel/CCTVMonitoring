@@ -14,3 +14,7 @@ class area:
         vertices_np = np.array(self.vertices, dtype=np.int32)
         val =  cv2.pointPolygonTest(self.vertices,point,False)
         return val
+    
+
+    def drawArea(self):
+        pass
