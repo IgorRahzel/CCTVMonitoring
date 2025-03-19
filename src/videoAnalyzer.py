@@ -2,8 +2,10 @@ from area import area
 from person import person
 from heatMap import heatMap
 from stats import stats
+from trajectoryGraph import trajectoryGraph
 import cv2
 import numpy as np
+
 
 class videoAnalyzer:
     def __init__(self,areasList,height,width,filename='stats'):
@@ -12,7 +14,7 @@ class videoAnalyzer:
         self.people = {}
         self.heatmap = heatMap(height,width)
         self.statistics = stats(self.people,self.areasDict,filename)
-       
+        self.trajGraph= trajectoryGraph(areasList,height,width)
 
 
     def _buildAreasDict(self,areasList):
@@ -71,13 +73,23 @@ class videoAnalyzer:
         for person in self.people.values():
             for _area in self.areasDict.values():
                 val = _area.isInside(person.positionHistory[-1])
+                # val is positive if person`s centroid is inside the area
                 if val > 0:
                     person.currentArea = _area.name
                     person.BBoxColor = _area.color
                     person.framesSpentinArea[_area.name] += 1
-                    if not person.visitedAreas or _area.name != person.visitedAreas[-1]:
+                    # Checks if person`s visited areas list is empty
+                    if len(person.visitedAreas) == 0:
                         person.visitedAreas.append(_area.name)
-                    break
+                        break
+                    else:
+                        if person.visitedAreas[-1] != person.currentArea:
+                            person.visitedAreas.append(_area.name)
+                            if len(person.visitedAreas) >= 2:
+                                self.trajGraph.updateIncidenceMatrix(person.visitedAreas[-2],person.visitedAreas[-1])
+                            break
+                            
+                            
     
 
     def updateAreas(self):
@@ -91,36 +103,13 @@ class videoAnalyzer:
     
     def drawBoundingBoxes(self,frame):
         for _person in self.people.values():
-            x1,y1,x2,y2 = _person.BBox
-            cv2.rectangle(frame, (x1, y1), (x2, y2), _person.BBoxColor, 2)
-            cv2.putText(frame, f'id:{_person.id}', (x1, y1-3),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
+            _person.drawBoundingBox(frame)
         return frame
     
 
     def drawAreas(self, frame):
         for _area in self.areasDict.values():
-            # Desenha o polígono da área
-            cv2.polylines(frame, [np.array(_area.vertices)], True, _area.color, 2)
-            
-            # Obtém os vértices do polígono
-            vertices = np.array(_area.vertices)
-            
-            # Encontra o ponto superior direito (menor y e maior x)
-            top_right_point = vertices[np.argmin(vertices[:, 1])]  # Ponto com o menor y
-            # Se houver múltiplos pontos com o mesmo y, escolha o que tem o maior x
-            top_right_candidates = vertices[vertices[:, 1] == top_right_point[1]]
-            top_right_point = top_right_candidates[np.argmin(top_right_candidates[:, 0])]
-            
-            # Define a posição do texto: abaixo e à direita do ponto superior direito
-            text_x = top_right_point[0] + 5  # Mesmo x do ponto superior direito
-            text_y = top_right_point[1] + 10  # Ajuste para colocar o texto abaixo do ponto
-
-            # Escreve o nome da área e a quantidade de pessoas
-            text = f'{_area.name}'
-            cv2.putText(frame, text, (text_x, text_y),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
-        
+            _area.drawArea(frame)
         return frame
 
     
@@ -138,6 +127,9 @@ class videoAnalyzer:
     
 
     def processVideo(self,results,frameNumber,frame):
+        frameCopy = frame.copy()
+        frameCopy = self.drawAreas(frameCopy)
+
         self.removeLostPeople(frameNumber)
         self.updatePeopleDict(results,frameNumber)
         self.updatePersonArea()
@@ -158,6 +150,7 @@ class videoAnalyzer:
         '''
         self.statistics.updateAreasStats()  
         self.statistics.updatePeopleStats()
+        self.trajGraph.drawSpaghettiDiagram(frameCopy)
 
         self.clearAreaCurrentInfo()
 

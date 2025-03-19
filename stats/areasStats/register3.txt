@@ -1,6 +1,6 @@
 Área: register3
-  - Total de pessoas detectadas: 25
-  - Número atual de pessoas: 0
-  - IDs que já estiveram na área: [257, 385, 388, 6, 392, 265, 267, 142, 272, 408, 161, 206, 342, 215, 343, 346, 358, 103, 360, 234, 370, 371, 117, 374, 250]
-  - IDs atualmente na área: []
+  - Total de pessoas detectadas: 1
+  - Número atual de pessoas: 1
+  - IDs que já estiveram na área: [6]
+  - IDs atualmente na área: [6]
 ========================================
