@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+'''
 cap = cv2.VideoCapture('videos/superMarket.mp4')
 
 fps = cap.get(cv2.CAP_PROP_FPS)  # Obtém o FPS do vídeo
@@ -41,3 +41,8 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
+'''
+
+NumberToArea = {0: 'corridor', 1: 'exit', 2: 'register1', 3: 'register2', 4: 'register3'}
+for i in range(len(NumberToArea)):
+    print(f'Area: {NumberToArea[i]}')

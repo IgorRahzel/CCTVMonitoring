@@ -11,5 +11,9 @@ src/__pycache__/
 venv/
 
 # Ignorar stats/areaStats e  stats/peopleStats
-stats/areaStats/
+stats/areasStats/
 stats/peopleStats/
+stats/peopleCSV/
+stats/areasCSV/
+stats/reports/
+stats/reportImgs/

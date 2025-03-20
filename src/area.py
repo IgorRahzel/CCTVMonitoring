@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 class area:
-    def __init__(self,name,color,vertices):
+    def __init__(self,name,color,vertices,actionNames):
         self.name = name
         self.color = color
         self.vertices = vertices
@@ -9,11 +9,18 @@ class area:
         self.currentIdsInArea = []
         self.currentNumberOfPeople = 0
         self.totalNumberOfPeople = 0
+        self.actionCounter = self._buildActionCounter(actionNames)
 
     def isInside(self,point):
         vertices_np = np.array(self.vertices, dtype=np.int32)
         val =  cv2.pointPolygonTest(self.vertices,point,False)
         return val
+
+    def _buildActionCounter(self,actionNames):
+        actionCounter = {}
+        for action in actionNames.values():
+            actionCounter[action] = 0
+        return actionCounter
     
 
     def drawArea(self,frame):
