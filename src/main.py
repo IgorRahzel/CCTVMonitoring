@@ -79,10 +79,11 @@ out.release()
 cv2.destroyAllWindows()
 
 # Diretório onde os arquivos CSV estão salvos
-input_dir = "stats/peopleStats"
+input_dir = "stats/peopleCSV"
 
 # Diretório onde os relatórios PDF serão salvos
 output_dir = "stats/reports"
 
 # Gerar relatórios para todos os arquivos CSV
 generate_reports_from_csv(input_dir, output_dir)
+print('Relatórios gerados com sucesso!')

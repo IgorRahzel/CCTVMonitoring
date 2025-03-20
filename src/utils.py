@@ -10,8 +10,8 @@ def generate_person_report(csv_file, output_pdf):
     Gera um relatório em PDF a partir de um arquivo CSV de uma pessoa.
     O relatório contém:
     - Gráfico comparando as atividades realizadas em cada área.
-    - Tempo total gasto em cada área.
-    - Tempo total gasto em cada ação.
+    - Gráfico do tempo total gasto em cada área.
+    - Gráfico do tempo total gasto em cada ação.
     '''
     # Ler o arquivo CSV
     df = pd.read_csv(csv_file)
@@ -26,7 +26,10 @@ def generate_person_report(csv_file, output_pdf):
     # Calcular o tempo total gasto em cada ação
     action_totals = df.iloc[:, 1:-1].sum()  # Soma das linhas para cada ação
 
-    # Criar gráfico comparativo
+    # Criar gráficos
+    images = {}
+
+    # Gráfico de atividades realizadas por área
     plt.figure(figsize=(10, 6))
     df.set_index('Área').iloc[:, :-1].plot(kind='bar', stacked=True, colormap='viridis')
     plt.title('Atividades Realizadas em Cada Área')
@@ -34,10 +37,32 @@ def generate_person_report(csv_file, output_pdf):
     plt.ylabel('Tempo (frames)')
     plt.xticks(rotation=45)
     plt.tight_layout()
+    images["activities"] = "activities.png"
+    plt.savefig(images["activities"])
+    plt.close()
 
-    # Salvar o gráfico como uma imagem temporária
-    graph_image = "temp_graph.png"
-    plt.savefig(graph_image)
+    # Gráfico do tempo total gasto em cada área
+    plt.figure(figsize=(8, 5))
+    df.plot(x='Área', y='Tempo Total na Área', kind='bar', color='blue', legend=False)
+    plt.title('Tempo Total Gasto em Cada Área')
+    plt.xlabel('Área')
+    plt.ylabel('Tempo (frames)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    images["time_areas"] = "time_areas.png"
+    plt.savefig(images["time_areas"])
+    plt.close()
+
+    # Gráfico do tempo total gasto em cada ação
+    plt.figure(figsize=(8, 5))
+    action_totals.plot(kind='bar', color='green', legend=False)
+    plt.title('Tempo Total Gasto em Cada Ação')
+    plt.xlabel('Ação')
+    plt.ylabel('Tempo (frames)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    images["time_actions"] = "time_actions.png"
+    plt.savefig(images["time_actions"])
     plt.close()
 
     # Criar o PDF
@@ -45,32 +70,28 @@ def generate_person_report(csv_file, output_pdf):
     pdf.setFont("Helvetica-Bold", 16)
     pdf.drawString(72, 750, f"Relatório de Atividades - {os.path.basename(csv_file)}")
 
-    # Adicionar o gráfico ao PDF
-    pdf.setFont("Helvetica", 12)
-    pdf.drawString(72, 730, "Gráfico de Atividades por Área:")
-    pdf.drawImage(ImageReader(graph_image), 72, 500, width=450, height=200)
-
-    # Adicionar o tempo total gasto em cada área
-    pdf.drawString(72, 450, "Tempo Total Gasto em Cada Área:")
-    y = 430
-    for index, row in df.iterrows():
-        pdf.drawString(72, y, f"{row['Área']}: {row['Tempo Total na Área']} frames")
-        y -= 15
-
-    # Adicionar o tempo total gasto em cada ação
-    pdf.drawString(72, y - 20, "Tempo Total Gasto em Cada Ação:")
-    y -= 40
-    for action, total in action_totals.items():
-        pdf.drawString(72, y, f"{action}: {total} frames")
-        y -= 15
+    y_position = 720
+    for title, image in [
+        ("Gráfico de Atividades por Área", images["activities"]),
+        ("Tempo Total Gasto em Cada Área", images["time_areas"]),
+        ("Tempo Total Gasto em Cada Ação", images["time_actions"])
+    ]:
+        pdf.setFont("Helvetica", 12)
+        pdf.drawString(72, y_position, title)
+        y_position -= 20
+        pdf.drawImage(ImageReader(image), 72, y_position - 200, width=450, height=200)
+        y_position -= 220
 
     # Finalizar o PDF
     pdf.save()
 
-    # Remover a imagem temporária do gráfico
-    os.remove(graph_image)
+    # Remover imagens temporárias
+    for img in images.values():
+        os.remove(img)
 
     print(f"Relatório gerado com sucesso: {output_pdf}")
+
+
 
 def generate_reports_from_csv(input_dir, output_dir):
     '''
@@ -86,6 +107,7 @@ def generate_reports_from_csv(input_dir, output_dir):
 
     # Iterar sobre todos os arquivos CSV no diretório de entrada
     for csv_file in os.listdir(input_dir):
+        #print(f"Gerando relatório para: {csv_file}")
         if csv_file.endswith(".csv"):
             csv_path = os.path.join(input_dir, csv_file)
             pdf_file = os.path.join(output_dir, f"{os.path.splitext(csv_file)[0]}_report.pdf")
