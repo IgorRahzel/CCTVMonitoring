@@ -2,6 +2,7 @@ import os
 import csv
 import matplotlib.pyplot as plt
 
+
 class stats:
     def __init__(self, peopleDict, areasDict, filename,frameNumber=0):
         self.peopleDict = peopleDict

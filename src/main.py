@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 from area import area
 from videoAnalyzer import videoAnalyzer
+from utils import generate_reports_from_csv
 import cv2
 import numpy as np
 
@@ -76,3 +77,12 @@ while cap.isOpened():
 cap.release()
 out.release()
 cv2.destroyAllWindows()
+
+# Diretório onde os arquivos CSV estão salvos
+input_dir = "stats/peopleStats"
+
+# Diretório onde os relatórios PDF serão salvos
+output_dir = "stats/reports"
+
+# Gerar relatórios para todos os arquivos CSV
+generate_reports_from_csv(input_dir, output_dir)
