@@ -124,7 +124,7 @@ def generate_area_report(csv_file, output_pdf):
 
     # Gráfico do tempo total gasto em cada ação por área
     plt.figure(figsize=(10, 6))
-    df.set_index('Àreas').iloc[:, 2:].plot(kind='bar', stacked=True, colormap='viridis')
+    df.set_index('Àreas').iloc[:, 1:].plot(kind='bar', stacked=True, colormap='viridis')
     plt.title('Tempo Total Gasto em Cada Ação por Área')
     plt.xlabel('Área')
     plt.ylabel('Tempo (frames)')
