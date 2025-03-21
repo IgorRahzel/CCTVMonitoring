@@ -1,9 +1,12 @@
 from ultralytics import YOLO
 from area import area
 from videoAnalyzer import videoAnalyzer
-from utils import generate_reports_from_csv
+from utils import generate_reports_from_csv,clear_stats_folder
 import cv2
 import numpy as np
+
+# Clear stats folder
+clear_stats_folder('stats')
 
 # Paths
 video_path = 'videos/SuperMarket.mp4'
@@ -73,17 +76,21 @@ while cap.isOpened():
     
     # Update the frame number
     frameNumber += 1
+    if frameNumber == 20:
+        break
 
 cap.release()
 out.release()
 cv2.destroyAllWindows()
 
 # Diretório onde os arquivos CSV estão salvos
-input_dir = "stats/peopleCSV"
-
+person_input_dir = "stats/peopleCSV"
+area_input_dir = "stats/areasCSV"
 # Diretório onde os relatórios PDF serão salvos
-output_dir = "stats/reports"
+person_output_dir = "stats/reports"
+area_output_dir = "stats/reports"
 
 # Gerar relatórios para todos os arquivos CSV
-generate_reports_from_csv(input_dir, output_dir)
+generate_reports_from_csv(person_input_dir, person_output_dir)
+generate_reports_from_csv(area_input_dir, area_output_dir)
 print('Relatórios gerados com sucesso!')
