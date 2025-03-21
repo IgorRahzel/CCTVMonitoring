@@ -3,6 +3,7 @@ from person import person
 from heatMap import heatMap
 from stats import stats
 from trajectoryGraph import trajectoryGraph
+from spaghetti import Spaghetti
 import cv2
 import numpy as np
 
@@ -16,6 +17,7 @@ class videoAnalyzer:
         self.heatmap = heatMap(height,width)
         self.statistics = stats(self.people,self.areasDict,filename)
         self.trajGraph= trajectoryGraph(areasList,height,width)
+        self.spaghetti = Spaghetti((height,width))
 
 
     def _buildAreasDict(self,areasList):
@@ -62,6 +64,8 @@ class videoAnalyzer:
             # If the centroid is close to a person in the dictionary, update the position of the person
             if closest_person is not None:
                 self.people[closest_person].updatePosition(coordinates,centroid)
+                # Update Spaghetti
+                self.spaghetti.update(self.people[closest_person],self.areasDict)
                 self.people[closest_person].lastFrameDetected = frameNumber
                 self.people[closest_person].action = cls_name
                 self.people[closest_person].actionCounter[cls_name] += 1
@@ -70,6 +74,7 @@ class videoAnalyzer:
                 self.id += 1
                 self.people[self.id] = person(self.id,frameNumber,self.areasDict,self.classNames,cls_name)
                 self.people[self.id].updatePosition(coordinates,centroid)
+                self.spaghetti.update(self.people[self.id],self.areasDict)
                 self.people[self.id].actionCounter[cls_name] += 1
 
 
@@ -138,8 +143,8 @@ class videoAnalyzer:
     
 
     def processVideo(self,results,frameNumber,frame):
-        #frameCopy = frame.copy()
-        #frameCopy = self.drawAreas(frameCopy)
+        frameCopy = frame.copy()
+        frameCopy = self.drawAreas(frameCopy)
 
         self.removeLostPeople(frameNumber)
         self.updatePeopleDict(results,frameNumber)
@@ -164,6 +169,7 @@ class videoAnalyzer:
         self.statistics.createAreasCSV()
         self.statistics.createPersonCSV()
         #self.statistics.generateReport(frameNumber)
+        self.spaghetti.drawSpaghetti(frameCopy)
         #self.trajGraph.drawSpaghettiDiagram(frameCopy)
 
         self.clearAreaCurrentInfo()

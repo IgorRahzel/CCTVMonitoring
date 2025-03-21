@@ -1,6 +1,6 @@
 Área: corridor
-  - Total de pessoas detectadas: 3
-  - Número atual de pessoas: 0
-  - IDs que já estiveram na área: [1, 11, 13]
-  - IDs atualmente na área: []
+  - Total de pessoas detectadas: 2
+  - Número atual de pessoas: 1
+  - IDs que já estiveram na área: [1, 11]
+  - IDs atualmente na área: [1]
 ========================================
