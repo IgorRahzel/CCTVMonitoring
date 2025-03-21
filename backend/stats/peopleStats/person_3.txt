@@ -1,0 +1,13 @@
+Pessoa ID: 3
+  - Último frame detectado: 19
+  - Área atual: register2
+  - Áreas visitadas: ['register2']
+  - Tempo na área 'corridor': 0 frames
+  - Tempo na área 'exit': 0 frames
+  - Tempo na área 'register1': 0 frames
+  - Tempo na área 'register2': 20 frames
+  - Tempo na área 'register3': 0 frames
+  - Ação 'Person': 20 frames
+  - Ação 'PersonWithShoppinBasket': 0 frames
+  - Ação 'PersonWithShoppinCart': 0 frames
+========================================
