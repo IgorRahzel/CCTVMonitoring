@@ -6,11 +6,11 @@ import cv2
 import numpy as np
 
 # Clear stats folder
-clear_stats_folder('stats')
+clear_stats_folder('backend/stats')
 
 # Paths
-video_path = 'videos/SuperMarket.mp4'
-model_path = 'models/best.pt'
+video_path = 'backend/videos/SuperMarket.mp4'
+model_path = 'backend/models/best.pt'
 
 # Load model
 model = YOLO(model_path)
@@ -25,7 +25,7 @@ cap = cv2.VideoCapture(video_path)
 fps = cap.get(cv2.CAP_PROP_FPS) 
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-output_path = 'output.mp4'
+output_path = 'backend/output.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec para MP4
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -84,11 +84,11 @@ out.release()
 cv2.destroyAllWindows()
 
 # Diretório onde os arquivos CSV estão salvos
-person_input_dir = "stats/peopleCSV"
-area_input_dir = "stats/areasCSV"
+person_input_dir = "backend/stats/peopleCSV"
+area_input_dir = "backend/stats/areasCSV"
 # Diretório onde os relatórios PDF serão salvos
-person_output_dir = "stats/reports"
-area_output_dir = "stats/reports"
+person_output_dir = "backend/stats/reports"
+area_output_dir = "backend/stats/reports"
 
 # Gerar relatórios para todos os arquivos CSV
 generate_reports_from_csv(person_input_dir, person_output_dir)

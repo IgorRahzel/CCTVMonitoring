@@ -9,7 +9,7 @@ import numpy as np
 
 
 class videoAnalyzer:
-    def __init__(self,areasList,height,width,classNames,filename='stats'):
+    def __init__(self,areasList,height,width,classNames,filename='backend/stats'):
         self.id = 0
         self.areasDict = self._buildAreasDict(areasList)
         self.people = {}
