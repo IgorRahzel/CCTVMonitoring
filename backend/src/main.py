@@ -1,96 +1,130 @@
+from flask import Flask, Response
+import cv2
+import numpy as np
 from ultralytics import YOLO
 from area import area
 from videoAnalyzer import videoAnalyzer
-from utils import generate_reports_from_csv,clear_stats_folder
-import cv2
-import numpy as np
+from utils import clear_stats_folder
+import threading
+import time
+
+app = Flask(__name__)
+
+# Global variables
+current_frame = None
+current_heatmap = None
+current_spaghetti = None
+frame_lock = threading.Lock()
+cap = None
+model = None
+video_analyzer = None
 
 # Clear stats folder
 clear_stats_folder('backend/stats')
 
-# Paths
-video_path = 'backend/videos/SuperMarket.mp4'
-model_path = 'backend/models/best.pt'
-
-# Load model
-model = YOLO(model_path)
-print(model.names)
-# Load video
-cap = cv2.VideoCapture(video_path)
-
-#start_frame = 500
-#cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-
-# Set configurations to write video with inference
-fps = cap.get(cv2.CAP_PROP_FPS) 
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-output_path = 'backend/output.mp4'
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec para MP4
-out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
-
-
-# Define areas
-corridor_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)
-exit_vertices = np.array([[360,0],[540,326],[580,326],[580,0]],np.int32)
-register1_vertices = np.array([[269,290],[515,290],[520,326],[269,326]],np.int32)
-register2_vertices = np.array([[270,154],[435,154],[504,282],[270,282]],np.int32)
-register3_vertices = np.array([[270,80],[400,80],[427,143],[270,143]],np.int32)
-
-corridor = area('corridor',color=(0,255,255),vertices=corridor_vertices,actionNames=model.names)
-exit = area('exit',color=(255,0,255),vertices=exit_vertices,actionNames=model.names)
-register1 = area('register1',color=(255,255,0),vertices=register1_vertices,actionNames=model.names)
-register2 = area('register2',color=(0,255,0),vertices=register2_vertices,actionNames=model.names)
-register3 = area('register3',color=(0,0,255),vertices=register3_vertices,actionNames=model.names)
-
-areasList = [corridor,exit,register1,register2,register3]
-
-# Video properties
-height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-
-# Initialize video analyzer
-video_analyzer = videoAnalyzer(areasList,height,width,model.names)
-
-# frame counter
-frameNumber = 0
-
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    results = model(frame)
-
-    # process the video
-    processed_frame = video_analyzer.processVideo(results,frameNumber,frame)
-
-    # Display the resulting frame
-    cv2.imshow('frame', processed_frame)
-    #out.write(processed_frame)
-   
-    # close if q, esc or close window button is pressed
-    if cv2.waitKey(1) & 0xFF in [ord('q'), 27]:
-        break
+# Initialize processing
+def initialize_processing():
+    global cap, model, video_analyzer, current_frame, current_heatmap, current_spaghetti
     
-    # Update the frame number
-    frameNumber += 1
-    if frameNumber == 20:
-        break
+    # Path to video and model
+    video_path = 'backend/videos/SuperMarket.mp4'
+    model_path = 'backend/models/best.pt'
+    
+    # Loading model and video
+    model = YOLO(model_path)
+    cap = cv2.VideoCapture(video_path)
+    
+    # Define áreas
+    corridor_vertices = np.array([[267,326],[268,0],[0,0],[0,326]],np.int32)
+    exit_vertices = np.array([[360,0],[540,326],[580,326],[580,0]],np.int32)
+    register1_vertices = np.array([[269,290],[515,290],[520,326],[269,326]],np.int32)
+    register2_vertices = np.array([[270,154],[435,154],[504,282],[270,282]],np.int32)
+    register3_vertices = np.array([[270,80],[400,80],[427,143],[270,143]],np.int32)
+    
+    areasList = [
+    area('corridor', color=(0,255,255), vertices=corridor_vertices, actionNames=model.names),
+    area('exit', color=(255,0,255), vertices=exit_vertices, actionNames=model.names),
+    area('register1', color=(255,255,0), vertices=register1_vertices, actionNames=model.names),
+    area('register2', color=(0,255,0), vertices=register2_vertices, actionNames=model.names),
+    area('register3', color=(0,0,255), vertices=register3_vertices, actionNames=model.names)
+    ]
+    
+    # Inicializar videoAnalyzer
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    video_analyzer = videoAnalyzer(areasList, height, width, model.names)
 
-cap.release()
-out.release()
-cv2.destroyAllWindows()
 
-# Diretório onde os arquivos CSV estão salvos
-person_input_dir = "backend/stats/peopleCSV"
-area_input_dir = "backend/stats/areasCSV"
-# Diretório onde os relatórios PDF serão salvos
-person_output_dir = "backend/stats/reports"
-area_output_dir = "backend/stats/reports"
+def process_frames():
+    global current_frame, current_heatmap, current_spaghetti, cap, model, video_analyzer
+    
+    frameNumber = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+            
+        # Processar frame com YOLO
+        results = model(frame)
+        
+        # Processar análises
+        processed_frame = video_analyzer.processVideo(results, frameNumber, frame)
+        heatmap = video_analyzer.createHeatMap(frame.copy())
+        spaghetti = video_analyzer.createSpaghetiDiagram(frame.copy())
+        
+        # Converter para JPEG
+        _, frame_buffer = cv2.imencode('.jpg', processed_frame)
+        _, heatmap_buffer = cv2.imencode('.jpg', heatmap)
+        _, spaghetti_buffer = cv2.imencode('.jpg', spaghetti)
+        
+        # Atualizar frames globais
+        with frame_lock:
+            current_frame = frame_buffer.tobytes()
+            current_heatmap = heatmap_buffer.tobytes()
+            current_spaghetti = spaghetti_buffer.tobytes()
+        
+        frameNumber += 1
+        
+    cap.release()
 
-# Gerar relatórios para todos os arquivos CSV
-generate_reports_from_csv(person_input_dir, person_output_dir)
-generate_reports_from_csv(area_input_dir, area_output_dir)
-print('Relatórios gerados com sucesso!')
+@app.route('/video_feed')
+def video_feed():
+    def generate():
+        while True:
+            with frame_lock:
+                if current_frame is None:
+                    continue
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + current_frame + b'\r\n')
+            time.sleep(0.03)
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/heatmap')
+def heatmap():
+    def generate():
+        while True:
+            with frame_lock:
+                if current_heatmap is None:
+                    continue
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + current_heatmap + b'\r\n')
+            time.sleep(0.03)
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/spaghetti_diagram')
+def spaghetti_diagram():
+    def generate():
+        while True:
+            with frame_lock:
+                if current_spaghetti is None:
+                    continue
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + current_spaghetti + b'\r\n')
+            time.sleep(0.03)
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    initialize_processing()
+    # Iniciar processamento em thread separada
+    threading.Thread(target=process_frames, daemon=True).start()
+    app.run(debug=True)

@@ -39,7 +39,7 @@ class Spaghetti:
                 cv2.line(overlayed_frame, points[i - 1], points[i], color, thickness=2)
 
         # Display window with the spaghetti diagram
-        cv2.imshow('Spaghetti Diagram', overlayed_frame)
-        cv2.waitKey(1)
+        #cv2.imshow('Spaghetti Diagram', overlayed_frame)
+        #cv2.waitKey(1)
 
         return overlayed_frame

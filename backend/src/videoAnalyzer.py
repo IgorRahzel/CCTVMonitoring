@@ -143,38 +143,39 @@ class videoAnalyzer:
     
 
     def processVideo(self,results,frameNumber,frame):
-        frameCopy = frame.copy()
-        frameCopy = self.drawAreas(frameCopy)
-
         self.removeLostPeople(frameNumber)
         self.updatePeopleDict(results,frameNumber)
         self.updatePersonArea()
         self.updateAreas()
-        frame = self.buildHeatMap(frame)
-        frame = self.drawAreas(frame)
-        frame = self.drawBoundingBoxes(frame)
         
-        '''
-        # print number of people in each area:
-        for _area in self.areasDict.values():
-            print(f'{_area.name}: {_area.currentNumberOfPeople}')
-
-        # plot line following each person`s centroid
-        for _person in self.people.values():
-            for i in range(len(_person.positionHistory) - 1):
-                cv2.line(frame, _person.positionHistory[i], _person.positionHistory[i + 1], _person.BBoxColor, 2)
-        '''
+        
         self.statistics.updateAreasStats()  
         self.statistics.updatePeopleStats()
         self.statistics.createAreasCSV()
         self.statistics.createPersonCSV()
-        #self.statistics.generateReport(frameNumber)
-        self.spaghetti.drawSpaghetti(frameCopy)
-        #self.trajGraph.drawSpaghettiDiagram(frameCopy)
 
         self.clearAreaCurrentInfo()
 
         return frame
+    
+
+    def createHeatMap(self,frame):
+        frameCopy = frame.copy()
+        heatMap = self.buildHeatMap(frameCopy)
+        heatMap = self.drawAreas(heatMap)
+        heatMap = self.drawBoundingBoxes(heatMap)
+        return heatMap
+    
+    def createSpaghetiDiagram(self,frame):
+        frameCopy = frame.copy()
+        spaghettiDiagram = self.spaghetti.drawSpaghetti(frameCopy)
+        spaghettiDiagram = self.drawAreas(spaghettiDiagram)
+        return spaghettiDiagram
+    
+    def rawFrame(self,frame):
+        return frame
+    
+
 
     
 
