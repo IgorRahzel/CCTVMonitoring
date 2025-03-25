@@ -1,4 +1,5 @@
-from flask import Flask, Response
+from flask import Flask, Response, jsonify
+from flask_cors import CORS
 import cv2
 import numpy as np
 from ultralytics import YOLO
@@ -7,9 +8,10 @@ from videoAnalyzer import videoAnalyzer
 from utils import clear_stats_folder
 import threading
 import time
+import json
 
 app = Flask(__name__)
-
+CORS(app)
 # Global variables
 current_frame = None
 current_heatmap = None
@@ -122,6 +124,47 @@ def spaghetti_diagram():
                        b'Content-Type: image/jpeg\r\n\r\n' + current_spaghetti + b'\r\n')
             time.sleep(0.03)
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/areas_stats')
+def areas_stats():
+    def generate():
+        while True:
+            try:
+                with open('backend/stats/areasCSV/areasStats.csv', 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    # Pega apenas o último bloco de dados
+                    blocks = content.split('Áreas,Número Total de Pessoas,TimePerson,TimePersonWithShoppinBasket,TimePersonWithShoppinCart')
+                    last_block = blocks[-1].strip()
+                    if last_block:
+                        # Formata como JSON para facilitar o consumo pelo frontend
+                        lines = last_block.split('\n')
+                        data = {
+                            "headers": [
+                                "Áreas",
+                                "Número Total de Pessoas",
+                                "TimePerson",
+                                "TimePersonWithShoppinBasket",
+                                "TimePersonWithShoppinCart"
+                            ],
+                            "rows": [line.split(',') for line in lines[1:] if line.strip()]
+                        }
+                        yield f"data: {json.dumps(data)}\n\n"
+                    else:
+                        yield "data: {}\n\n"
+            except FileNotFoundError:
+                yield "data: {'error': 'File not found'}\n\n"
+            except Exception as e:
+                yield f"data: {'error': '{str(e)}'}\n\n"
+            time.sleep(1)  # Intervalo de atualização
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',  # Usando Server-Sent Events
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        }
+    )
 
 if __name__ == '__main__':
     initialize_processing()
