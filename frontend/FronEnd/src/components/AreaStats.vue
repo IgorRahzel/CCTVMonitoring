@@ -31,10 +31,16 @@
       </tbody>
     </table>
 
-    <!-- Gráfico de Barras -->
+    <!-- Gráfico de Barras por Área -->
     <div v-if="showChart" class="chart-container">
       <h3 class="chart-title">Ações por Área</h3>
       <BarChart :chart-data="chartData" :chart-options="chartOptions" :height="400" />
+    </div>
+
+    <!-- Gráfico de Soma de Tempos por Ação -->
+    <div v-if="showChart" class="chart-container">
+      <h3 class="chart-title">Tempo Total por Ação</h3>
+      <BarChart :chart-data="actionSumChartData" :chart-options="horizontalBarOptions" :height="400" />
     </div>
   </div>
 </template>
@@ -44,7 +50,6 @@ import { defineComponent } from "vue";
 import { Chart as ChartJS, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from "chart.js";
 import { BarChart } from "vue-chart-3";
 
-// Registrar todos os componentes necessários do Chart.js
 ChartJS.register(
   BarController,
   BarElement,
@@ -158,6 +163,79 @@ export default defineComponent({
             ticks: {
               callback: function(value) {
                 return value + 's';
+              }
+            }
+          }
+        },
+        maintainAspectRatio: false
+      };
+    },
+    actionSumChartData() {
+      if (this.tableData.length === 0) return { labels: [], datasets: [] };
+
+      const actions = this.headers.slice(1).filter(header => header.startsWith('Time'));
+      const actionSums = actions.map(action => {
+        const colIndex = this.headers.indexOf(action);
+        return this.tableData.reduce((sum, row) => sum + (Number(row[colIndex]) || 0), 0);
+      });
+
+      return {
+        labels: actions.map(action => this.formatActionName(action)),
+        datasets: [{
+          label: 'Tempo Total (segundos)',
+          data: actionSums,
+          backgroundColor: actions.map((_, index) => this.getColor(index)),
+          borderColor: actions.map((_, index) => this.getColor(index)),
+          borderWidth: 1
+        }]
+      };
+    },
+    horizontalBarOptions() {
+      return {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: { 
+            display: true,
+            text: 'Tempo Total por Ação (segundos)',
+            font: {
+              size: 16,
+              weight: 'bold'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                return `${context.raw} segundos`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Tempo Total (segundos)',
+              font: {
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              callback: function(value) {
+                return value + 's';
+              }
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Ações',
+              font: {
+                weight: 'bold'
               }
             }
           }
@@ -340,6 +418,10 @@ export default defineComponent({
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 550px;
   position: relative;
+}
+
+.chart-container + .chart-container {
+  margin-top: 40px;
 }
 
 .chart-title {
