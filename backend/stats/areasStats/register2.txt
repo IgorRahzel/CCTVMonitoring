@@ -1,6 +1,6 @@
 Área: register2
-  - Total de pessoas detectadas: 3
+  - Total de pessoas detectadas: 16
   - Número atual de pessoas: 3
-  - IDs que já estiveram na área: [8, 3, 7]
-  - IDs atualmente na área: [3, 7, 8]
+  - IDs que já estiveram na área: [65, 34, 3, 68, 37, 38, 7, 8, 41, 73, 49, 51, 52, 53, 30, 63]
+  - IDs atualmente na área: [30, 51, 73]
 ========================================

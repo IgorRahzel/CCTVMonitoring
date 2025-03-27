@@ -2,7 +2,7 @@ Pessoa ID: 11
   - Último frame detectado: 3
   - Área atual: corridor
   - Áreas visitadas: ['corridor']
-  - Tempo na área 'corridor': 4 frames
+  - Tempo na área 'corridor': 14 frames
   - Tempo na área 'exit': 0 frames
   - Tempo na área 'register1': 0 frames
   - Tempo na área 'register2': 0 frames

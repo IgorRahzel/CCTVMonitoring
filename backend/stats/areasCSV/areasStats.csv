@@ -1,6 +1,6 @@
 Àreas,Número Total de Pessoas,TimePerson,TimePersonWithShoppinBasket,TimePersonWithShoppinCart
-corridor,2,4,0,4
-exit,3,4,0,8
-register1,0,0,0,0
-register2,3,12,0,0
-register3,3,12,0,0
+corridor,18,534,55,34
+exit,24,2321,0,1027
+register1,1,15,0,0
+register2,16,1785,0,0
+register3,15,1653,0,0
