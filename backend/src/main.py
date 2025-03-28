@@ -175,7 +175,6 @@ PEOPLE_CSV_FOLDER = os.path.join(BASE_DIR, 'stats', 'peopleCSV')
 #if not os.path.exists(PEOPLE_CSV_FOLDER):
     #raise RuntimeError(f"Pasta peopleCSV não encontrada em: {PEOPLE_CSV_FOLDER}")
 
-# Define uma rota GET para listar todos os arquivos CSV de pessoas
 @app.route('/api/people-csv')
 def list_people_csv():
     def generate():
@@ -191,7 +190,12 @@ def list_people_csv():
                 # Verifica se houve mudança
                 if current_files != last_files:
                     last_files = current_files
-                    yield f"data: {json.dumps({'files': sorted(list(current_files))})}\n\n"
+                    # Ordena os arquivos numericamente pelo ID
+                    sorted_files = sorted(
+                        list(current_files),
+                        key=lambda x: int(x.replace('person_', '').replace('.csv', ''))
+                    )
+                    yield f"data: {json.dumps({'files': sorted_files})}\n\n"
                 
                 time.sleep(1)  # Verifica a cada 1 segundo
             
