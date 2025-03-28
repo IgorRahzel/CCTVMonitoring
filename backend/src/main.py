@@ -1,4 +1,4 @@
-from flask import Flask, Response, jsonify
+from flask import Flask, Response, jsonify, send_from_directory
 from flask_cors import CORS
 import cv2
 import numpy as np
@@ -9,6 +9,8 @@ from utils import clear_stats_folder
 import threading
 import time
 import json
+import os
+from pathlib import Path
 
 app = Flask(__name__)
 CORS(app)
@@ -165,6 +167,99 @@ def areas_stats():
             'Connection': 'keep-alive'
         }
     )
+
+# Caminho absoluto confiável usando os.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Volta um nível
+PEOPLE_CSV_FOLDER = os.path.join(BASE_DIR, 'stats', 'peopleCSV')
+# Verificação imediata
+#if not os.path.exists(PEOPLE_CSV_FOLDER):
+    #raise RuntimeError(f"Pasta peopleCSV não encontrada em: {PEOPLE_CSV_FOLDER}")
+
+# Define uma rota GET para listar todos os arquivos CSV de pessoas
+@app.route('/api/people-csv')
+def list_people_csv():
+    def generate():
+        last_files = set()
+        while True:
+            try:
+                # Lista os arquivos atuais
+                current_files = set(
+                    f for f in os.listdir(PEOPLE_CSV_FOLDER)
+                    if f.startswith('person_') and f.endswith('.csv')
+                )
+                
+                # Verifica se houve mudança
+                if current_files != last_files:
+                    last_files = current_files
+                    yield f"data: {json.dumps({'files': sorted(list(current_files))})}\n\n"
+                
+                time.sleep(1)  # Verifica a cada 1 segundo
+            
+            except Exception as e:
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                time.sleep(5)  # Espera 5 segundos antes de tentar novamente
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        }
+    )
+
+@app.route('/api/people-csv/<filename>')
+def get_people_csv(filename):
+    def generate():
+        while True:
+            try:
+                if not (filename.startswith('person_') and filename.endswith('.csv')):
+                    yield f"data: {json.dumps({'error': 'Nome de arquivo inválido'})}\n\n"
+                    continue
+                
+                file_path = os.path.join(PEOPLE_CSV_FOLDER, filename)
+                
+                if not os.path.exists(file_path):
+                    yield f"data: {json.dumps({'error': 'Arquivo não encontrado'})}\n\n"
+                    continue
+                
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    # Pega apenas o último bloco de dados
+                    blocks = content.split('Área,Person,PersonWithShoppinBasket,PersonWithShoppinCart')
+                    last_block = blocks[-1].strip()
+                    
+                    if last_block:
+                        lines = last_block.split('\n')
+                        data = {
+                            "headers": [
+                                "Área",
+                                "Person",
+                                "PersonWithShoppinBasket",
+                                "PersonWithShoppinCart"
+                            ],
+                            "rows": [line.split(',') for line in lines if line.strip()],
+                            "filename": filename
+                        }
+                        yield f"data: {json.dumps(data)}\n\n"
+                    else:
+                        yield "data: {}\n\n"
+            
+            except Exception as e:
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            
+            time.sleep(1)  # Intervalo de atualização
+
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        }
+    )
+    
+
 
 if __name__ == '__main__':
     initialize_processing()
