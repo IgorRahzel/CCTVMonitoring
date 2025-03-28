@@ -1,13 +1,13 @@
 Pessoa ID: 10
-  - Último frame detectado: 78
+  - Último frame detectado: 46
   - Área atual: register3
   - Áreas visitadas: ['register3']
   - Tempo na área 'corridor': 0 frames
   - Tempo na área 'exit': 0 frames
   - Tempo na área 'register1': 0 frames
   - Tempo na área 'register2': 0 frames
-  - Tempo na área 'register3': 89 frames
-  - Ação 'Person': 79 frames
+  - Tempo na área 'register3': 47 frames
+  - Ação 'Person': 47 frames
   - Ação 'PersonWithShoppinBasket': 0 frames
   - Ação 'PersonWithShoppinCart': 0 frames
 ========================================

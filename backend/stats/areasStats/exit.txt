@@ -1,6 +1,6 @@
 Área: exit
-  - Total de pessoas detectadas: 14
-  - Número atual de pessoas: 6
-  - IDs que já estiveram na área: [2, 4, 6, 7, 14, 15, 17, 19, 20, 21, 22, 23, 24, 25]
-  - IDs atualmente na área: [4, 7, 19, 21, 22, 24]
+  - Total de pessoas detectadas: 3
+  - Número atual de pessoas: 3
+  - IDs que já estiveram na área: [2, 4, 6]
+  - IDs atualmente na área: [2, 4, 6]
 ========================================

@@ -234,9 +234,9 @@ def get_people_csv(filename):
                         data = {
                             "headers": [
                                 "Área",
-                                "Person",
-                                "PersonWithShoppinBasket",
-                                "PersonWithShoppinCart"
+                                "TimePerson",
+                                "TimePersonWithShoppinBasket",
+                                "TimePersonWithShoppinCart"
                             ],
                             "rows": [line.split(',') for line in lines if line.strip()],
                             "filename": filename
