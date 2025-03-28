@@ -18,6 +18,7 @@ CORS(app)
 current_frame = None
 current_heatmap = None
 current_spaghetti = None
+current_trajectory = None
 frame_lock = threading.Lock()
 cap = None
 model = None
@@ -28,7 +29,7 @@ clear_stats_folder('backend/stats')
 
 # Initialize processing
 def initialize_processing():
-    global cap, model, video_analyzer, current_frame, current_heatmap, current_spaghetti
+    global cap, model, video_analyzer, current_frame, current_heatmap, current_spaghetti,current_trajectory
     
     # Path to video and model
     video_path = 'backend/videos/SuperMarket.mp4'
@@ -60,7 +61,7 @@ def initialize_processing():
 
 
 def process_frames():
-    global current_frame, current_heatmap, current_spaghetti, cap, model, video_analyzer
+    global current_frame, current_heatmap, current_spaghetti,current_trajectory ,cap, model, video_analyzer
     
     frameNumber = 0
     while cap.isOpened():
@@ -75,17 +76,20 @@ def process_frames():
         processed_frame = video_analyzer.processVideo(results, frameNumber, frame)
         heatmap = video_analyzer.createHeatMap(frame.copy())
         spaghetti = video_analyzer.createSpaghetiDiagram(frame.copy())
+        trajectory = video_analyzer.createTrajectoryGraph(frame.copy())
         
         # Converter para JPEG
         _, frame_buffer = cv2.imencode('.jpg', processed_frame)
         _, heatmap_buffer = cv2.imencode('.jpg', heatmap)
         _, spaghetti_buffer = cv2.imencode('.jpg', spaghetti)
+        _, trajectory = cv2.imencode('.jpg', trajectory)
         
         # Atualizar frames globais
         with frame_lock:
             current_frame = frame_buffer.tobytes()
             current_heatmap = heatmap_buffer.tobytes()
             current_spaghetti = spaghetti_buffer.tobytes()
+            current_trajectory = trajectory.tobytes()
         
         frameNumber += 1
         
@@ -124,6 +128,19 @@ def spaghetti_diagram():
                     continue
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + current_spaghetti + b'\r\n')
+            time.sleep(0.03)
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/trajectory')
+def trajectory():
+    def generate():
+        while True:
+            with frame_lock:
+                if current_trajectory is None:
+                    continue
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + current_trajectory + b'\r\n')
             time.sleep(0.03)
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 

@@ -49,7 +49,7 @@ class trajectoryGraph:
 
 
 
-    def drawSpaghettiDiagram(self, frame):
+    def drawGraph(self, frame):
         # Criar uma cópia da imagem de fundo para desenhar o diagrama
         diagram = frame.copy()
 
@@ -74,5 +74,6 @@ class trajectoryGraph:
                         cv2.arrowedLine(diagram, start_point, (mid_x, mid_y), (0, 0, 255), thickness, tipLength=0.2)
 
             # Exibir o diagrama
-            cv2.imshow("Spaghetti Diagram", diagram)
-            cv2.waitKey(1)  # Atualiza a janela continuamente
+            #cv2.imshow("Spaghetti Diagram", diagram)
+            #cv2.waitKey(1)  # Atualiza a janela continuamente
+        return diagram

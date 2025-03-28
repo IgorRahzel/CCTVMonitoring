@@ -172,6 +172,13 @@ class videoAnalyzer:
         spaghettiDiagram = self.drawAreas(spaghettiDiagram)
         return spaghettiDiagram
     
+    def createTrajectoryGraph(self,frame):
+        frameCopy = frame.copy()
+        trajectoryGraph = self.trajGraph.drawGraph(frameCopy)
+        trajectoryGraph = self.drawAreas(trajectoryGraph)
+        return trajectoryGraph
+
+    
     def rawFrame(self,frame):
         return frame
     
