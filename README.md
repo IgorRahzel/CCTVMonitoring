@@ -97,13 +97,24 @@ Este projeto tem como objeto obter dados/informações sobre uma região monitor
    pip install -r requirements.txt
    ```
 2. **Navegue até a pasta do projeto:**
-     A partir da pasta do projeto execute o comando:
-     ```bash
-     python main.py
-     ```
-3. **Saída:**
-   - O vídeo contendo a inferência e o mapa de calor será exibido em uma janela
-   - Os arquivos contendo as estatísticas serão gerados na pasta *stats*
+    Execute o arquivo main.py
+
+   ```bash
+   cd backend/src
+   python main.py
+   ```
+   Isso irá gerar os endpoints no servidor do Flask
+
+3. **Inicialize o frontend:**
+Execute o código:
+```
+cd frontend/FronEnd
+npm run dev
+```
+Acesse então o servidor local
+    
+5. **Visualização:**
+Navegue para o servidor local para acessar o dados, estatísticas e gráficos gerados pelo programa
    
 
 
@@ -213,7 +224,12 @@ Os métodos dessa classe são os seguintes:
 - `processVideo(self,results,frameNumber,frame)` ➡️ Une os métodos da classe de modo a produzir os resultados durante o processamento do vídeo
 
 ### Arquivo principal
-No arquivo `main.py` foi importado o modelo YOLOv8 da biblioteca *ultralytics*, nele é feito a segmentação das áreas de interesse do vídeo, bem como a criação de uma lista dessas áreas. É então feito processamento dos frames do vídeos onde a YOLOv8 é utilizada para obter os dados desejados, os quais são armazendos em *results*, em seguida é feito o processamento desses dados utilizadno o método *videoProcess()* da classe `videoAnalyzer`.
+O arquivo main.py é o núcleo do backend da aplicação, responsável por processar e analisar um vídeo utilizando o modelo YOLOv8 para detecção de pessoas em áreas específicas. Ele implementa um servidor Flask que fornece várias rotas para transmitir os resultados da análise em tempo real para o frontend. Suas principais funcionalidades são:
+
+- Processamento de vídeo: lê e analisa um vídeo, detectando pessoas e rastreando sua movimentação nas áreas definidas.
+- Geração de visualizações: fornece imagens de saída, incluindo o vídeo processado, heatmap, diagrama de espaguete e trajetória de movimento.
+- Serviço de transmissão de dados: utiliza Server-Sent Events (SSE) para fornecer estatísticas atualizadas sobre a presença de pessoas nas áreas monitoradas.
+- Integração com o frontend: as rotas expõem dados e imagens que são consumidos pela interface desenvolvida em Vue 3.
 
 ### Resultados
 O vídeo contendo os resultados pode ser visto no link abaixo:
