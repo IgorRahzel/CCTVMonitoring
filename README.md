@@ -3,6 +3,8 @@
 Este projeto tem como objeto obter dados/informações sobre uma região monitorada por uma CCTV como por exemplo:
 - Detecção das pessoas no vídeo
 - Geração de mapa de calor com base nas regiões com maior fluxo de pessoas
+- Geração de diagrama de espaguete
+- Geração de diagarama de fluxo
 - Número de pessoas em cada uma das áreas segmentadas no momento atual
 - Número total de pessoas detectadas em cada área segmentada
 - Ids/pessoas em cada uma das áreas
@@ -24,6 +26,54 @@ Este projeto tem como objeto obter dados/informações sobre uma região monitor
   - [Arquivo Principal](#arquivo-principal)
 - [Resultados](#resultados)
 
+# Estrutura do Projeto
+```bash
+.
+├── backend               # Pasta contendo os arquivos utilizados no backend
+│   ├── models            # Pasta com os modelos da YOLOv8
+│   │   ├── best.pt       # Pesos do modelo pré-treinado
+│   ├── requirements.txt  # Bibliotecas utiilizadas
+│   ├── src               # Pasta com os arquivos .py
+│   │   ├── area.py       
+│   │   ├── heatMap.py
+│   │   ├── main.py
+│   │   ├── person.py
+│   │   ├── spaghetti.py
+│   │   ├── stats.py
+│   │   ├── trajectoryGraph.py
+│   │   ├── utils.py
+│   │   └── videoAnalyzer.py
+│   ├── stats                  # Pasta para aramezenar as estátisticas geradas
+│   │   ├── areasCSV           # Estatísticas para área com extensão .csv
+│   │   ├── areasStats         # Estatísticas para área com extensão .txt
+│   │   ├── peopleCSV          # Pasta contendo os arquivos de cada uma das pessoas identificadas com arquivos de extensão .csv
+│   │   ├── peopleStats        # Pasta contendo os arquivos de cada uma das pessoas identificadas com arquivos de extensão .txt
+│   └── videos                 # Pasta com os vídeos utilizados para inferência
+│       ├── superMarket.mp4
+├── frontend # Pasta contendo os arquivos utilizados no frontend
+│   ├── FronEnd
+│   │   ├── src
+│   │   │   ├── App.vue                # Arquivo responsável por gerar a interface
+│   │   │   ├── assets               
+│   │   │   ├── components             # Componentes do projeto
+│   │   │   │   ├── AreaStats.vue
+│   │   │   │   ├── CameraView.vue
+│   │   │   │   ├── FlowDiagram.vue
+│   │   │   │   ├── HeatMap.vue
+│   │   │   │   ├── icons
+│   │   │   │   ├── PeopleStats.vue
+│   │   │   │   ├── PersonDetails.vue
+│   │   │   │   └── Spaghetti.vue
+│   │   │   ├── router
+│   │   │   │   └── index.ts
+│   │   │   └── views
+│   │   │       └── HomeView.vue    # Página incial da interface
+│   │   ├── (Outros arquivos gerados automaticamente pelo Vue)
+│   │  
+├── readme_data
+└── README.md
+
+```
 
 # Como Executar
 
@@ -45,9 +95,14 @@ Este projeto tem como objeto obter dados/informações sobre uma região monitor
 
 
 # Funcionamento do código
-Nesta seção será apresentada a ideia geral do funcionamento do código bem como o papel de cada um de seus componentes. Inicialmente trataremos das classes auxiliares como `person`,`area`,`heatMap` e `stats` então iremos tratar da classe principal, `videoAnalyzer` para conectar todos os componentes, além de realizar a geração das estatísticas e a inferência no vídeo. Por fim mostraremos o fluxo do arquivo principal `main.py`.
+Conforme pode ser observado na seção [Estrutura do Código](estrutura-do-codigo) esse projeto é divídido em duas pastas principais sendo elas `backend` e `frontend`. 
 
-## Classes Auxiliares
+Na seção `backend` será apresentada a ideia geral do funcionamento do código bem como o papel de cada um de seus componentes. Inicialmente trataremos das classes auxiliares como `person`,`area`,`heatMap`,`spaghetti`,`trajectoryGraph`,`stats` então iremos tratar da classe principal, `videoAnalyzer` para conectar todos os componentes, além de realizar a geração das estatísticas e a inferência no vídeo. Por fim mostraremos o fluxo do arquivo principal `main.py`.
+
+já na seção `frontend` será mostrado a ideia por trás de cada um dos componentes: `AreaStats`, `CameraView`, `FlowDiagram`, `HeatMap`, `PeopleStats`, `PersonDetails`,`Spaghetti`
+
+## backend
+### Classes Auxiliares
 **1. person**: A classe `person` é utilizada para armazenar os dados referentes à pessoas identificadas no vídeo, esta tem como atributos:
 
 - `id` ➡️ Número de identificação da pessoa detectada
@@ -92,7 +147,28 @@ Abaixo estão listado os métodos dessa classe e suas funcionalidades:
 - `getColoredHeatMap(self)` ➡️  Aplica um mapa de cores na matriz normalizada de modo a produzir o mapa de calor
 - `overlayHeatMap(self, frame)` ➡️  Sobrepõe o heatmap ao frame
 
-**3. stats**: A classe `stats` é responsável por gerar as estatíscas e escreve-las em arquivos de saída, tendo como atributos:
+**4. spaghetti**: A classe `spaghetti` é utilizada para criar o diagrama de espaguete das pessoas detectadas no vídeo, tendo como atributos:
+
+- `frame_shape` ➡️ Tupla com o shape do frame do vídeo em análise.
+- `trajectory_points`  ➡️ Dicionário que aramazena o histórico dos centroídes das pessoas detectadas
+
+A classe tem como métodos `update(self,person,areas_dict)` e `drawSpaghetti(self,frame)` os quais atualizam o dicionário e desenham o diagrame de espaguete no frame respectivamente.
+
+**5. trajectoryGraph**: Essa classe é responsável por crirar um grafo de trajetórias, para isso são criados nós no centro de cada uma das áreas de interesse definidas pelo usuário e então quando houver uma transição de uma pessoa de uma área para outra é criada uma aresta direcionada indicando essa transição, conforme o número de transições aumente a espessura da aresta também irá aumentar. Permitindo assim uma melhor comprensão dos fluxos mais comuns. Essa classe tem como atributos:
+
+- `areasList` ➡️ Lista de objetos da classe area
+- `height` e `width` ➡️ Dimensões do frame do vídeo
+- `centroids` ➡️ Centroides das áreas
+- `areaToNumber`,`numberToArea`  ➡️ Mapeamento das áreas para um indice e vice-versa
+- `incidenceMatrix` ➡️ Matriz de dimensões |Áreas|x|Áreas| onde a entrada *(i,j)* contabiliza as transições ocorridas da área *i* para a área *j*
+
+Os métodos dessa classe são:
+
+- `getAreasCentroid(self)` ➡️ Utilizada para obter o centroids do atrivuto `centroids`
+- `buildMApping(self)` ➡️ Cria o mapeamento das áreas para os índices e vice-versa
+- `drawGraph(self,frame)` ➡️ Desenha o diagrama de fluxo no frame
+
+**6. stats**: A classe `stats` é responsável por gerar as estatíscas e escreve-las em arquivos de saída, tendo como atributos:
 
 - `peopleDict` ➡️ Dicionário da classe `person`
 - `areasDict` ➡️ Dicionário da classe `area`
@@ -101,7 +177,7 @@ Abaixo estão listado os métodos dessa classe e suas funcionalidades:
 Os métodos da classe são `updateAreasStats(self)` e `updatePeopleStats(self)` utilizados para imprimir as informções das áreas e das pessoas.
 
 
-## Classe videoAnalyzer
+### Classe videoAnalyzer
 Como mencionado anteriormente a classe `videoAnalyzer` tem como papel unificar todas as classes implementadas anteriormente. Os atributos dessa classe são:
 
 - `id` ➡️ Inicializado como zero e é imcrementado em um a cada pessoa nova que é identificada
@@ -123,11 +199,44 @@ Os métodos dessa classe são os seguintes:
 - `buildHeatMap(self,frame)` ➡️ Atualiza o mapa de calor
 - `processVideo(self,results,frameNumber,frame)` ➡️ Une os métodos da classe de modo a produzir os resultados durante o processamento do vídeo
 
-## Arquivo principal
+### Arquivo principal
 No arquivo `main.py` foi importado o modelo YOLOv8 da biblioteca *ultralytics*, nele é feito a segmentação das áreas de interesse do vídeo, bem como a criação de uma lista dessas áreas. É então feito processamento dos frames do vídeos onde a YOLOv8 é utilizada para obter os dados desejados, os quais são armazendos em *results*, em seguida é feito o processamento desses dados utilizadno o método *videoProcess()* da classe `videoAnalyzer`.
 
-# Resultados
+### Resultados
 O vídeo contendo os resultados pode ser visto no link abaixo:
 [link do vídeo](https://drive.google.com/file/d/1Xbkc8S1sPyf-ka_vGlVEXOWuZwVTyzXI/view?usp=sharing)
+
+## frontend
+
+### AreaStats.vue
+
+Esse arquivo gera uma tabela com as seguintes colunas: *Áreas*,*Total de Pessoas*, *Pessoa na área* , *Com cesto*, *Com Carrinho*, o que permite identificar o número de pessoas em cada uma das áreas bem como as ações realizada em cada uma das áreas, onde *Pessoa* representa o tempo total em que as pessoas não estiveram com o carrinho ou com o cesto ná área, já *Com Cesto* e *Com Carrinho* representam o tempo total onde as pessoas foram identificadas carregando um cesto ou carrinho. Também são gerados os gráficos de barras de *Ações por Área* e *Tempo total por Ação*
+
+
+### PeopleStats.vue
+
+Esse componente mostra os ids das pessoas identificadas, ao selecionar algum dos ids é possível visualizar as estátiscas relacionadas àquela pessoa
+
+### PersonDetails.vue
+
+Gera as estatísticas para o id selecionado em `PeopleStats.vue`. Nele são mostrados um tabela com as colunas: *Área*, *Pessoa na área* , *Com cesto*, *Com Carrinho além dos gráficos de barras: *Ações Por Área*,*Tempo total por ação* e *Tempo total por área*
+
+### HeatMap.vue
+
+Mostra o mapa de calor da movimentação das pessoas
+
+### Spaghetti.vue
+
+Mostra o diagrana de espaguete
+
+### FlowDiagram.vue
+
+Mostra o diagrama de fluxo
+
+### CameraView.vue
+
+Mostra apenas o vídeo
+
+
 
 
