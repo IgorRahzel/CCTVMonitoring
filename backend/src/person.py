@@ -58,7 +58,7 @@ class person:
     def drawBoundingBox(self,frame):
             x1,y1,x2,y2 = self.BBox
             cv2.rectangle(frame, (x1, y1), (x2, y2), self.BBoxColor, 2)
-            cv2.putText(frame, f'id:{self.id} {self.action}', (x1, y1-3),
+            cv2.putText(frame, f'id:{self.id}', (x1, y1-3),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
             
     def updatePosition(self,bbox,centroid):
