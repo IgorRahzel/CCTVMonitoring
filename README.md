@@ -245,13 +245,13 @@ Gera as estatísticas para o id selecionado em `PeopleStats.vue`. Nele são most
 
 Mostra o mapa de calor da movimentação das pessoas
 
-![Camera](readme_data/HeatMap.pngpng)
+![Camera](readme_data/HeatMap.png)
 
 ### Spaghetti.vue
 
 Mostra o diagrana de espaguete
 
-![Camera](readme_data/Spaghetti.pngpng)
+![Camera](readme_data/Spaghetti.png)
 
 ### FlowDiagram.vue
 
