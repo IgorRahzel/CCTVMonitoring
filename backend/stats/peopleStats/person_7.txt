@@ -1,13 +1,13 @@
 Pessoa ID: 7
-  - Último frame detectado: 688
-  - Área atual: exit
-  - Áreas visitadas: ['register2', 'exit']
+  - Último frame detectado: 107
+  - Área atual: register2
+  - Áreas visitadas: ['register2']
   - Tempo na área 'corridor': 0 frames
-  - Tempo na área 'exit': 500 frames
+  - Tempo na área 'exit': 0 frames
   - Tempo na área 'register1': 0 frames
-  - Tempo na área 'register2': 184 frames
+  - Tempo na área 'register2': 108 frames
   - Tempo na área 'register3': 0 frames
-  - Ação 'Person': 699 frames
+  - Ação 'Person': 108 frames
   - Ação 'PersonWithShoppinBasket': 0 frames
   - Ação 'PersonWithShoppinCart': 0 frames
 ========================================

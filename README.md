@@ -208,34 +208,68 @@ O vídeo contendo os resultados pode ser visto no link abaixo:
 
 ## frontend
 
+Para gerar a interface navegue para pasta `frontend/FronEnd` e execute o comando:
+```bash
+npm run dev
+```
+
 ### AreaStats.vue
 
 Esse arquivo gera uma tabela com as seguintes colunas: *Áreas*,*Total de Pessoas*, *Pessoa na área* , *Com cesto*, *Com Carrinho*, o que permite identificar o número de pessoas em cada uma das áreas bem como as ações realizada em cada uma das áreas, onde *Pessoa* representa o tempo total em que as pessoas não estiveram com o carrinho ou com o cesto ná área, já *Com Cesto* e *Com Carrinho* representam o tempo total onde as pessoas foram identificadas carregando um cesto ou carrinho. Também são gerados os gráficos de barras de *Ações por Área* e *Tempo total por Ação*
 
+![Tabela Áreas](readme_data/Table1.png)
+
+![Gráfico1](readme_data/plot2.png)
+
+![Gráfico2](readme_data/plot1.png)
 
 ### PeopleStats.vue
 
 Esse componente mostra os ids das pessoas identificadas, ao selecionar algum dos ids é possível visualizar as estátiscas relacionadas àquela pessoa
 
+![Lista de Pessoas](readme_data/PeopleList.png)
+
 ### PersonDetails.vue
 
 Gera as estatísticas para o id selecionado em `PeopleStats.vue`. Nele são mostrados um tabela com as colunas: *Área*, *Pessoa na área* , *Com cesto*, *Com Carrinho além dos gráficos de barras: *Ações Por Área*,*Tempo total por ação* e *Tempo total por área*
+
+![Tabela Pessoas](readme_data/Table2.png)
+
+![Gráfico2](readme_data/plot3.png)
+
+![Gráfico3](readme_data/plot4.png)
+
+![Gráfico4](readme_data/plot5.png)
 
 ### HeatMap.vue
 
 Mostra o mapa de calor da movimentação das pessoas
 
+![Camera](readme_data/HeatMap.pngpng)
+
 ### Spaghetti.vue
 
 Mostra o diagrana de espaguete
+
+![Camera](readme_data/Spaghetti.pngpng)
 
 ### FlowDiagram.vue
 
 Mostra o diagrama de fluxo
 
+![Camera](readme_data/Flow.png)
+
 ### CameraView.vue
 
 Mostra apenas o vídeo
+
+![Camera](readme_data/Cam.png)
+
+### HomeView.vue
+
+Cria uma página inicial onde é possível acessar cada um dos outros componentes, permitindo assim o acesso às estatísticas e gráficos desejados
+
+![Tela Inicial](readme_data/HomeView.png)
 
 
 
