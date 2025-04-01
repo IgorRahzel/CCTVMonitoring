@@ -19,14 +19,14 @@ class videoAnalyzer:
         self.trajGraph= trajectoryGraph(areasList,height,width)
         self.spaghetti = Spaghetti((height,width))
 
-
+    # Constrói um dicionário com as áreas
     def _buildAreasDict(self,areasList):
         areasDict = {}
         for area in areasList:
             areasDict[area.name] = area
         return areasDict
         
-    # Return tuple of BBOx,centroids and class name
+    # Retorna a BBox, o centróide e a ação detectada
     def getData(self,results):
         data = []
         for box in results[0].boxes:
@@ -36,7 +36,7 @@ class videoAnalyzer:
             data.append(((x1, y1, x2, y2), ((x1 + x2) // 2, (y1 + y2) // 2),cls_name))
         return data
     
-
+    # Remove pessoas que não foram detectadas por um certo número de frames
     def removeLostPeople(self,frameNumber):
         to_remove = []
         for id,_person in self.people.items():
@@ -47,12 +47,12 @@ class videoAnalyzer:
             del self.people[id]
         
 
-
+    # Atualiza o dicionário de pessoas
     def updatePeopleDict(self,results,frameNumber,threshold = 20):
-        # get Bbox and centroids
+        # Obtém a BBox, o centróide e a ação detectada
         data = self.getData(results)
-        # Check if one of the centroides corresponds to a person in the dictionary
-        # based on the euclidean distance
+        # Confere se o centróide está proximo de alguma pessoa no dicionário
+        # Com base na menor distância entre os centróides
         for coordinates,centroid,cls_name in data:
             current_threshold = threshold
             closest_person = None
@@ -61,7 +61,7 @@ class videoAnalyzer:
                 if distance is not None and distance < current_threshold:
                     current_threshold = distance
                     closest_person = previous_person.id
-            # If the centroid is close to a person in the dictionary, update the position of the person
+            # Se o centróide está próximo de alguma pessoa no dicionário, atualiza a posição
             if closest_person is not None:
                 self.people[closest_person].updatePosition(coordinates,centroid)
                 # Update Spaghetti
@@ -69,7 +69,7 @@ class videoAnalyzer:
                 self.people[closest_person].lastFrameDetected = frameNumber
                 self.people[closest_person].action = cls_name
                 self.people[closest_person].actionCounter[cls_name] += 1
-            # If the centroid wasn't close to any person in the dictionary, create a new person
+            # Caso contrário, cria uma nova pessoa
             else:
                 self.id += 1
                 self.people[self.id] = person(self.id,frameNumber,self.areasDict,self.classNames,cls_name)
@@ -77,23 +77,23 @@ class videoAnalyzer:
                 self.spaghetti.update(self.people[self.id],self.areasDict)
                 self.people[self.id].actionCounter[cls_name] += 1
 
-
+    # Atualiza a área atual de cada pessoa
     def updatePersonArea(self):
         for person in self.people.values():
             for _area in self.areasDict.values():
                 val = _area.isInside(person.positionHistory[-1])
-                # val is positive if person`s centroid is inside the area
+                # val é positivo caso o centróide esteja dentro da área
                 if val > 0:
                     person.currentArea = _area.name
                     person.BBoxColor = _area.color
                     person.framesSpentinArea[_area.name] += 1
 
-                    # Update person`s actionsPerAreaMatrix
+                    # Atualiza a matriz de ações por área da pessoa
                     i = person.areaToNumber[_area.name]
                     j = person.actionToNumber[person.action]
                     person.actionsPerAreaMatrix[i][j] += 1
 
-                    # Checks if person`s visited areas list is empty
+                    # Confere se a lista de áreas visitadas da pessoa está vazia
                     if len(person.visitedAreas) == 0:
                         person.visitedAreas.append(_area.name)
                         break
@@ -106,7 +106,7 @@ class videoAnalyzer:
                             
                             
     
-
+    # Atualiza as informações das áreas
     def updateAreas(self):
         for id,_person in self.people.items():
             if _person.currentArea is not None:
@@ -116,19 +116,19 @@ class videoAnalyzer:
                 self.areasDict[_person.currentArea].totalNumberOfPeople = len(self.areasDict[_person.currentArea].IdsRecordInArea)
                 self.areasDict[_person.currentArea].actionCounter[_person.action] += 1
 
-    
+    # Desenha as bounding boxes das pessoa no frame
     def drawBoundingBoxes(self,frame):
         for _person in self.people.values():
             _person.drawBoundingBox(frame)
         return frame
     
-
+    # Desenha o contorno das áreas no frame
     def drawAreas(self, frame):
         for _area in self.areasDict.values():
             _area.drawArea(frame)
         return frame
 
-    
+    # Constrói o heatmap
     def buildHeatMap(self,frame):
         for _person in self.people.values():
             self.heatmap.updateDetectionMatrix(_person.BBox)
@@ -136,12 +136,13 @@ class videoAnalyzer:
         overlayedHeatMap = self.heatmap.overlayHeatMap(frame)
         return overlayedHeatMap
     
+    # Limpa as informações atuais das áreas
     def clearAreaCurrentInfo(self):
         for _area in self.areasDict.values():
             _area.currentNumberOfPeople = 0
             _area.currentIdsInArea = []
     
-
+    # Processa o vídeo
     def processVideo(self,results,frameNumber,frame):
         self.removeLostPeople(frameNumber)
         self.updatePeopleDict(results,frameNumber)

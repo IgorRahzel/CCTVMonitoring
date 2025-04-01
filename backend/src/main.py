@@ -14,7 +14,8 @@ from pathlib import Path
 
 app = Flask(__name__)
 CORS(app)
-# Global variables
+
+# Variaveis globais
 current_frame = None
 current_heatmap = None
 current_spaghetti = None
@@ -24,18 +25,18 @@ cap = None
 model = None
 video_analyzer = None
 
-# Clear stats folder
+# Limpar pasta de estatísticas
 clear_stats_folder('backend/stats')
 
-# Initialize processing
+# Inicializar processamento
 def initialize_processing():
     global cap, model, video_analyzer, current_frame, current_heatmap, current_spaghetti,current_trajectory
     
-    # Path to video and model
+    # Caminho para o vídeo e modelo
     video_path = 'backend/videos/SuperMarket.mp4'
     model_path = 'backend/models/best.pt'
     
-    # Loading model and video
+    # Carregando moelo YOLO e vídeo
     model = YOLO(model_path)
     cap = cv2.VideoCapture(video_path)
     
@@ -95,6 +96,7 @@ def process_frames():
         
     cap.release()
 
+# Rota para frame atual do vídeo
 @app.route('/video_feed')
 def video_feed():
     def generate():
@@ -107,6 +109,7 @@ def video_feed():
             time.sleep(0.03)
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Rota para o heatmap
 @app.route('/heatmap')
 def heatmap():
     def generate():
@@ -119,6 +122,7 @@ def heatmap():
             time.sleep(0.03)
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Rota para o diagrama de espaguete
 @app.route('/spaghetti_diagram')
 def spaghetti_diagram():
     def generate():
@@ -131,7 +135,7 @@ def spaghetti_diagram():
             time.sleep(0.03)
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
+# Rota para o gráfico de trajetória
 @app.route('/trajectory')
 def trajectory():
     def generate():
@@ -144,6 +148,7 @@ def trajectory():
             time.sleep(0.03)
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Rota para estatísticas de áreas
 @app.route('/areas_stats')
 def areas_stats():
     def generate():
@@ -192,6 +197,7 @@ PEOPLE_CSV_FOLDER = os.path.join(BASE_DIR, 'stats', 'peopleCSV')
 #if not os.path.exists(PEOPLE_CSV_FOLDER):
     #raise RuntimeError(f"Pasta peopleCSV não encontrada em: {PEOPLE_CSV_FOLDER}")
 
+# Rota para listar arquivos CSV de pessoas
 @app.route('/api/people-csv')
 def list_people_csv():
     def generate():
@@ -229,6 +235,7 @@ def list_people_csv():
         }
     )
 
+# Rota para obter um arquivo CSV de pessoas
 @app.route('/api/people-csv/<filename>')
 def get_people_csv(filename):
     def generate():

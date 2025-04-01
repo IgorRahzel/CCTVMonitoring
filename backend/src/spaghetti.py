@@ -4,21 +4,21 @@ import cv2
 class Spaghetti:
     def __init__(self, frame_shape):
         self.frame_shape = frame_shape
-        self.trajectory_points = {}  # Dictionary to store the trajectory points of each person
+        self.trajectory_points = {}  # Dicionário para armazenar a trajetória de cada pessoa
 
     def update(self, person, areas_dict):
-        if person.positionHistory:  # Checks if the person has a position history
-            centroid = person.positionHistory[-1]  # Last centroid of the person
-            x, y = int(centroid[0]), int(centroid[1])  # Coordinates of the centroid
+        if person.positionHistory:  # Caso pessoa tenha histórico de posições
+            centroid = person.positionHistory[-1]  # Último centroíde da pessoa
+            x, y = int(centroid[0]), int(centroid[1])  # Coordenadas do centroíde
 
             if 0 <= y < self.frame_shape[0] and 0 <= x < self.frame_shape[1]:
-                if person.visitedAreas:  #  Checks if the person has visited areas
-                    first_area_name = person.visitedAreas[0]  # First area visited by the person
+                if person.visitedAreas:  #  Caso a pessoa visitou alguma área
+                    first_area_name = person.visitedAreas[0]  # Nome da primeira área visitada pela pessoa
                     first_area = areas_dict.get(first_area_name)
                     if first_area:
-                        color = first_area.color  # Cololr associated with the first area visited by the person
+                        color = first_area.color  # Cor associada a primeira área visitada pela pessoa
 
-                        # Stores the centroid of the person in the trajectory matrix
+                        # Armazena os centróides da pessoa no dicionário de trajetória
                         if person.id not in self.trajectory_points:
                             self.trajectory_points[person.id] = {
                                 "color": color,
@@ -30,7 +30,7 @@ class Spaghetti:
        
         overlayed_frame = frame
 
-        # Draw lines conecting the points
+        # Desenha as linhas da trajetória de cada pessoa
         for person_id, data in self.trajectory_points.items():
             color = data["color"]
             points = data["points"]

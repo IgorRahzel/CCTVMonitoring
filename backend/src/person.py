@@ -17,13 +17,15 @@ class person:
         self.areaToNumber,self.numberToArea = self._buildMappingForAreas(areasDict)
         self.actionToNumber, self.numberToAction = self._buildMappingForActions(actionNames)
         self.actionsPerAreaMatrix = np.zeros((len(areasDict),len(actionNames)),dtype=np.int32)
-
+    
+    # Incializa dicionária com a quantidade de frames que a pessoa passou em cada área
     def _initFramesSpentInArea(self,areasDict):
         framesSpentInArea = {}
         for area in areasDict.values():
             framesSpentInArea[area.name] = 0
         return framesSpentInArea
     
+    # Mapa de áreas para números e vice-versa
     def _buildMappingForAreas(self,areasDict):
         areaToNumber = {}
         numberToArea = {}
@@ -32,6 +34,7 @@ class person:
             numberToArea[i] = _area.name
         return areaToNumber, numberToArea
     
+    # Mapa de ações para números e vice-versa
     def _buildMappingForActions(self,actionNames):
         actionToNumber = {}
         numberToAction = {}
@@ -40,13 +43,14 @@ class person:
             numberToAction[i] = action
         return actionToNumber, numberToAction
     
+    # Contador de ações
     def _buildActionCounter(self,actionNames):
         actionCounter = {}
         for action in actionNames.values():
             actionCounter[action] = 0
         return actionCounter
         
-    
+    # Distância entre um centoíde identificado e o centroíde atual da pessoa
     def dist2centroid(self,centroid):
         if len(self.positionHistory) > 0:
             last_position = self.positionHistory[-1]
@@ -55,12 +59,14 @@ class person:
         
         return None
     
+    # Desenha a bounding box da pessoa no frame
     def drawBoundingBox(self,frame):
             x1,y1,x2,y2 = self.BBox
             cv2.rectangle(frame, (x1, y1), (x2, y2), self.BBoxColor, 2)
             cv2.putText(frame, f'id:{self.id}', (x1, y1-3),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
-            
+
+    # Atualiza a bounding box e a posição da pessoa
     def updatePosition(self,bbox,centroid):
         self.BBox = bbox
         self.positionHistory.append(centroid)

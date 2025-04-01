@@ -11,18 +11,20 @@ class area:
         self.totalNumberOfPeople = 0
         self.actionCounter = self._buildActionCounter(actionNames)
 
+    # Verifica se um ponto está dentro da área
     def isInside(self,point):
         vertices_np = np.array(self.vertices, dtype=np.int32)
         val =  cv2.pointPolygonTest(self.vertices,point,False)
         return val
-
+    
+    # Cria dicionário para contagem de ações
     def _buildActionCounter(self,actionNames):
         actionCounter = {}
         for action in actionNames.values():
             actionCounter[action] = 0
         return actionCounter
     
-
+    # Desenha a área no frame
     def drawArea(self,frame):
         # Desenha o polígono da área
         cv2.polylines(frame, [np.array(self.vertices)], True, self.color, 2)
